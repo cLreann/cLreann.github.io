@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Hello World, cLreann&#39;s  Blog">
+    <meta name="keywords" content="加密小程序, cLreann&#39;s  Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Hello World | cLreann&#39;s  Blog</title>
+    <title>加密小程序 | cLreann&#39;s  Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -203,12 +203,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/12.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Hello World</h1>
+                    <h1 class="description center-align post-title">加密小程序</h1>
                 </div>
             </div>
         </div>
@@ -322,12 +322,25 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/c/">
+                                <span class="chip bg-color">c</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E5%8A%A0%E8%A7%A3%E5%AF%86/" class="post-category">
+                                加解密
+                            </a>
+                        
+                    </div>
                     
                 </div>
             </div>
@@ -336,7 +349,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2021-11-04
+                    2021-11-07
                 </div>
                 
 
@@ -357,19 +370,87 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;
+                <pre><code class="c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt; //提供一些字符串用到的函数
+#include &lt;stdlib.h&gt; //系统函数
+#include &lt;ctype.h&gt;
+
+char ch = &#39;0&#39;;
+char filename[256]=&quot;&quot;;   //定义一个数组储存文件名
+FILE *fp = NULL;        //定义一个指针  后面用于指向打开的文件
+FILE *fptemp = NULL;    //定义一个指针   后面用于指向生成的临时文件（加密或解密后的内容）
+char password[12] = &quot;123456&quot;;
+const char tempfile[256] = &quot;temp123456.temp&quot;; //const 定义一个常量
+int i =0;        //定义一个循环控制变量
+int pwdlen = 0;    //定义一个记录密码长度的整形变量
+
+
+//函数声明
+void menu();
+void inputpass(char *pass);
+//函数实现
+void inputpass(char *pass)
+&#123;
+    scanf(&quot;%s&quot;,pass);
+&#125;
+
+void menu()
+&#123;
+    printf(&quot;************************************\n&quot;);
+    printf(&quot;************************************\n&quot;);
+
+    //1:打开文件或目录
+    //通过字符终端读取一个字符串
+    printf(&quot;清楚如要加密或要解密的文件路径,例如/user/go/1.txt \n&quot;);
+    gets(filename);
+    if(NULL ==(fp = fopen(filename,&quot;rb&quot;)))
+    &#123;
+        printf(&quot;你所输入的文件不存在\n&quot;);
+        exit(1);
+    &#125;
+    //如果文件存在
+    printf(&quot;文件存在，请输入密码。如：8888888\n&quot;);
+    inputpass(password);
+    pwdlen = (int)strlen(password); //获取密码的长度
+    if(0 == pwdlen)
+    &#123;
+        printf(&quot;对不起，密码长度不能为0\n&quot;);
+        exit(2);
+    &#125;
+    //2：读出文件中的内容进行加密//3：把加密的信息写入文章中并覆盖
+    fptemp = fopen(tempfile,&quot;wb&quot;);
+    while(1)
+    &#123;
+        ch = getc(fp);   //getc用于从流中取字符，若从一个文件中读取一个字符，读到文件尾而无数据时便返回EOF
+        if(feof(fp))    //feof标准库函数,在stdio.h中，检测流上的文件结束符，如文件结束，返回非0值，否则返0
+        &#123;
+            /*判断文件读完没有*/
+            break;
+        &#125;
+        /*每取出一个字符就加密*/
+        ch^= password[i++];     // a^b 表示a异或b  a^= b a与b异或结果给a
+        //ch里就是加密以后的数据了
+        fputc(ch,fptemp);        //写入
+        if(i == pwdlen)
+        &#123;
+            i=0;
+        &#125;
+    &#125;
+
+    //循环结束后清理
+    fclose(fp);
+    fclose(fptemp);
+    remove(filename);
+    rename(tempfile,filename);
+    printf(&quot;恭喜你，加密或解密成功\n&quot;);
+&#125;
+
+int main(int argc, char const *argv[])
+&#123;
+    menu();
+    return 0;
+&#125;
 </code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server
-</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate
-</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy
-</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 
                 
             </div>
@@ -383,7 +464,11 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
+                            
+                                <a href="/tags/c/">
+                                    <span class="chip bg-color">c</span>
+                                </a>
+                            
                         </div>
                     
                 </div>
@@ -422,9 +507,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2021/11/07/%E5%8A%A0%E5%AF%86%E5%B0%8F%E7%A8%8B%E5%BA%8F/">
                     <div class="card-image">
@@ -442,9 +528,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2021-11-07
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-07
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -457,6 +543,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -472,7 +559,7 @@
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge right-badge text-color">
-                本篇&nbsp;<i class="far fa-dot-circle"></i>
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
                 <a href="/2021/11/04/hello-world/">
@@ -502,7 +589,6 @@
                         </span>
                     </div>
                 </div>
-
                 
             </div>
         </div>
