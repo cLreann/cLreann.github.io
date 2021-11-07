@@ -365,92 +365,96 @@
         <hr class="clearfix">
 
         
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
 
         
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <pre><code class="c">#include &lt;stdio.h&gt;
-#include &lt;string.h&gt; //提供一些字符串用到的函数
-#include &lt;stdlib.h&gt; //系统函数
-#include &lt;ctype.h&gt;
+                <pre class="language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span> <span class="token comment">//提供一些字符串用到的函数</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span> <span class="token comment">//系统函数</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;ctype.h></span></span>
 
-char ch = &#39;0&#39;;
-char filename[256]=&quot;&quot;;   //定义一个数组储存文件名
-FILE *fp = NULL;        //定义一个指针  后面用于指向打开的文件
-FILE *fptemp = NULL;    //定义一个指针   后面用于指向生成的临时文件（加密或解密后的内容）
-char password[12] = &quot;123456&quot;;
-const char tempfile[256] = &quot;temp123456.temp&quot;; //const 定义一个常量
-int i =0;        //定义一个循环控制变量
-int pwdlen = 0;    //定义一个记录密码长度的整形变量
+<span class="token keyword">char</span> ch <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+<span class="token keyword">char</span> filename<span class="token punctuation">[</span><span class="token number">256</span><span class="token punctuation">]</span><span class="token operator">=</span><span class="token string">""</span><span class="token punctuation">;</span>   <span class="token comment">//定义一个数组储存文件名</span>
+FILE <span class="token operator">*</span>fp <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>		<span class="token comment">//定义一个指针  后面用于指向打开的文件</span>
+FILE <span class="token operator">*</span>fptemp <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>	<span class="token comment">//定义一个指针   后面用于指向生成的临时文件（加密或解密后的内容）</span>
+<span class="token keyword">char</span> password<span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"123456"</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token keyword">char</span> tempfile<span class="token punctuation">[</span><span class="token number">256</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"temp123456.temp"</span><span class="token punctuation">;</span> <span class="token comment">//const 定义一个常量</span>
+<span class="token keyword">int</span> i <span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>		<span class="token comment">//定义一个循环控制变量</span>
+<span class="token keyword">int</span> pwdlen <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>	<span class="token comment">//定义一个记录密码长度的整形变量</span>
 
 
-//函数声明
-void menu();
-void inputpass(char *pass);
-//函数实现
-void inputpass(char *pass)
-&#123;
-    scanf(&quot;%s&quot;,pass);
-&#125;
+<span class="token comment">//函数声明</span>
+<span class="token keyword">void</span> <span class="token function">menu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">inputpass</span><span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span>pass<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//函数实现</span>
+<span class="token keyword">void</span> <span class="token function">inputpass</span><span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span>pass<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token function">scanf</span><span class="token punctuation">(</span><span class="token string">"%s"</span><span class="token punctuation">,</span>pass<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
 
-void menu()
-&#123;
-    printf(&quot;************************************\n&quot;);
-    printf(&quot;************************************\n&quot;);
+<span class="token keyword">void</span> <span class="token function">menu</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"************************************\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"************************************\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    //1:打开文件或目录
-    //通过字符终端读取一个字符串
-    printf(&quot;清楚如要加密或要解密的文件路径,例如/user/go/1.txt \n&quot;);
-    gets(filename);
-    if(NULL ==(fp = fopen(filename,&quot;rb&quot;)))
-    &#123;
-        printf(&quot;你所输入的文件不存在\n&quot;);
-        exit(1);
-    &#125;
-    //如果文件存在
-    printf(&quot;文件存在，请输入密码。如：8888888\n&quot;);
-    inputpass(password);
-    pwdlen = (int)strlen(password); //获取密码的长度
-    if(0 == pwdlen)
-    &#123;
-        printf(&quot;对不起，密码长度不能为0\n&quot;);
-        exit(2);
-    &#125;
-    //2：读出文件中的内容进行加密//3：把加密的信息写入文章中并覆盖
-    fptemp = fopen(tempfile,&quot;wb&quot;);
-    while(1)
-    &#123;
-        ch = getc(fp);   //getc用于从流中取字符，若从一个文件中读取一个字符，读到文件尾而无数据时便返回EOF
-        if(feof(fp))    //feof标准库函数,在stdio.h中，检测流上的文件结束符，如文件结束，返回非0值，否则返0
-        &#123;
-            /*判断文件读完没有*/
-            break;
-        &#125;
-        /*每取出一个字符就加密*/
-        ch^= password[i++];     // a^b 表示a异或b  a^= b a与b异或结果给a
-        //ch里就是加密以后的数据了
-        fputc(ch,fptemp);        //写入
-        if(i == pwdlen)
-        &#123;
-            i=0;
-        &#125;
-    &#125;
+    <span class="token comment">//1:打开文件或目录</span>
+    <span class="token comment">//通过字符终端读取一个字符串</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"清楚如要加密或要解密的文件路径,例如/user/go/1.txt \n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">gets</span><span class="token punctuation">(</span>filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token constant">NULL</span> <span class="token operator">==</span><span class="token punctuation">(</span>fp <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span>filename<span class="token punctuation">,</span><span class="token string">"rb"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#123;</span>
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"你所输入的文件不存在\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token comment">//如果文件存在</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"文件存在，请输入密码。如：8888888\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">inputpass</span><span class="token punctuation">(</span>password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    pwdlen <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token function">strlen</span><span class="token punctuation">(</span>password<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//获取密码的长度</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">==</span> pwdlen<span class="token punctuation">)</span>
+    <span class="token punctuation">&#123;</span>
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"对不起，密码长度不能为0\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token comment">//2：读出文件中的内容进行加密//3：把加密的信息写入文章中并覆盖</span>
+    fptemp <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span>tempfile<span class="token punctuation">,</span><span class="token string">"wb"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#123;</span>
+        ch <span class="token operator">=</span> <span class="token function">getc</span><span class="token punctuation">(</span>fp<span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">//getc用于从流中取字符，若从一个文件中读取一个字符，读到文件尾而无数据时便返回EOF</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">feof</span><span class="token punctuation">(</span>fp<span class="token punctuation">)</span><span class="token punctuation">)</span>	<span class="token comment">//feof标准库函数,在stdio.h中，检测流上的文件结束符，如文件结束，返回非0值，否则返0</span>
+        <span class="token punctuation">&#123;</span>
+            <span class="token comment">/*判断文件读完没有*/</span>
+            <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token comment">/*每取出一个字符就加密*/</span>
+        ch<span class="token operator">^=</span> password<span class="token punctuation">[</span>i<span class="token operator">++</span><span class="token punctuation">]</span><span class="token punctuation">;</span>     <span class="token comment">// a^b 表示a异或b  a^= b a与b异或结果给a</span>
+        <span class="token comment">//ch里就是加密以后的数据了</span>
+        <span class="token function">fputc</span><span class="token punctuation">(</span>ch<span class="token punctuation">,</span>fptemp<span class="token punctuation">)</span><span class="token punctuation">;</span>		<span class="token comment">//写入</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>i <span class="token operator">==</span> pwdlen<span class="token punctuation">)</span>
+        <span class="token punctuation">&#123;</span>
+            i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
 
-    //循环结束后清理
-    fclose(fp);
-    fclose(fptemp);
-    remove(filename);
-    rename(tempfile,filename);
-    printf(&quot;恭喜你，加密或解密成功\n&quot;);
-&#125;
+    <span class="token comment">//循环结束后清理</span>
+    <span class="token function">fclose</span><span class="token punctuation">(</span>fp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">fclose</span><span class="token punctuation">(</span>fptemp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">remove</span><span class="token punctuation">(</span>filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">rename</span><span class="token punctuation">(</span>tempfile<span class="token punctuation">,</span>filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"恭喜你，加密或解密成功\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
 
-int main(int argc, char const *argv[])
-&#123;
-    menu();
-    return 0;
-&#125;
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token keyword">const</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token function">menu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
 </code></pre>
+
 
                 
             </div>
