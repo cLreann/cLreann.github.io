@@ -732,8 +732,7 @@ username<span class="token operator">=</span>admin <span class="token operator">
             c<span class="token punctuation">.</span><span class="token function">String</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">,</span> <span class="token string">"&lt;script>alert('You are not admin!');window.location.href='/login'&lt;/script>"</span><span class="token punctuation">)</span></code></pre>
 
 <p>此时显示<code>You are not admin!</code>，查看代码，因为输入的password放入了session中，然后拿了一个<code>ADMIN_PASS</code>比了比，username当前肯定不是空的，所以肯定后面这个玩意没过，这样一来绕password也不可取。这样只能通过回显的successed来进行猜解密码了。写个py小程序。</p>
-<pre class="language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> request
-<span class="token keyword">import</span> requests
+<pre class="language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
 url <span class="token operator">=</span> <span class="token string">'http://aeaaf57a-67ce-4209-927a-0d19bf0b790c.node4.buuoj.cn:81/login'</span>
 headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
     <span class="token string">"Content-Type"</span><span class="token punctuation">:</span> <span class="token string">"application/x-www-form-urlencoded"</span>  
@@ -758,7 +757,6 @@ passwd <span class="token operator">=</span> <span class="token string">""</span
         <span class="token keyword">break</span></code></pre>
 
 <blockquote>
-<p>这里Content-Type要是设置成text/utf-8就一直显示输入的密码和用户名是空的，不知道为啥</p>
 <p>工具大致就是，通过数据库里面的查的password来一个一个猜字符。然后通过len判断密码的长度，如果第一层循环完成后i值后+1，此时的密码没有增加一位，则跳出循环。得到密码：</p>
 <p>54a83850073b0f4c6862d5a1d48ea84f</p>
 </blockquote>
